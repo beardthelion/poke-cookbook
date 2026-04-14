@@ -177,6 +177,26 @@
   .config-banner { max-width: 1280px; margin: 16px auto 0; padding: 14px 20px; background: var(--accent-soft); color: #8a2e0b; border-radius: 12px; font-size: 13px; text-align: center; }
   .config-banner code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
 
+  .cta-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: var(--ink); color: var(--bg);
+    padding: 18px 24px; border-radius: 18px;
+    margin-bottom: 8px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    border: 1px solid var(--ink);
+  }
+  .cta-banner:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -15px rgba(255,90,31,0.5); border-color: var(--accent); }
+  .cta-text { flex: 1; min-width: 0; }
+  .cta-title { font-family: 'Fraunces', serif; font-weight: 500; font-size: 18px; letter-spacing: -0.01em; margin-bottom: 2px; }
+  .cta-sub { font-size: 13px; color: rgba(244, 239, 230, 0.7); line-height: 1.4; }
+  .cta-arrow { font-size: 22px; color: var(--accent); flex-shrink: 0; transition: transform 0.18s ease; }
+  .cta-banner:hover .cta-arrow { transform: translateX(4px); }
+  @media (max-width: 500px) {
+    .cta-banner { padding: 14px 18px; border-radius: 14px; }
+    .cta-title { font-size: 15px; }
+    .cta-sub { font-size: 12px; }
+  }
+
   .admin-banner { max-width: 1280px; margin: 16px auto 0; padding: 10px 20px; background: #1a1a1a; color: var(--bg); border-radius: 12px; font-size: 13px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .admin-banner .dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
   .admin-controls { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
@@ -230,6 +250,13 @@
 </header>
 
 <section class="controls" id="recipes">
+  <a href="https://poke.com/r/Q7pOOz79HJC" target="_blank" rel="noopener" class="cta-banner">
+    <div class="cta-text">
+      <div class="cta-title">🌴 Use the Cookbook directly with Poke</div>
+      <div class="cta-sub">Add the official Poke recipe to search, browse, and discover — right from your chat.</div>
+    </div>
+    <span class="cta-arrow">→</span>
+  </a>
   <div class="controls-row">
     <span class="sort-label">Sort by</span>
     <div class="pill-group" id="sortPills">
