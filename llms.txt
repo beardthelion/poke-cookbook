@@ -1,0 +1,85 @@
+# Poke Cookbook
+
+> A community-curated directory of recipes for Poke (poke.com), an AI agent that lives in your text messages. Users submit Poke recipe links, upvote the best ones, and discover what automations others are building.
+
+Poke Cookbook is an independent, unofficial community hub — not affiliated with The Interaction Company of California. All recipes link back to poke.com, where Poke handles setup and execution. The Cookbook is just an index and ranking layer over the community's shared recipes.
+
+## What Poke recipes are
+
+Poke recipes are pre-built automations for the Poke AI agent (poke.com). They run over iMessage, SMS, and Telegram. Examples include "alert me before important meetings," "summarize unread email twice a day," "track flight prices to Tokyo." Recipes are shared via `poke.com/r/{id}` links for community recipes or `poke.com/p/{slug}` for official Poke recipes.
+
+## Site features
+
+- **Submit recipes** without signing up (paste a poke.com/r/ or /p/ link, metadata auto-fills)
+- **Upvote** and flag (sign-in required via magic link, one vote per user)
+- **Sort** by Hot (vote/age decay), Top (all-time), or New
+- **Filter** by category: Calendar, Community, Developer, Email, Finance, Health, Home, Productivity, Scheduling, Shopping, Students, To-dos, Travel, or Chef's Special (official Poke recipes)
+
+## For agents and LLMs
+
+A read-only JSON API is available for querying recipes programmatically:
+
+- **Endpoint**: `https://pokecookbook.com/api/recipes`
+- **Method**: GET
+- **Auth**: none
+- **Cache**: 60 seconds
+
+### Query parameters
+
+- `category=Travel` — filter by category (one of the 14 above)
+- `official=true` — only official Poke recipes
+- `official=false` — only community recipes
+- `sort=hot` — hot ranking (default)
+- `sort=top` — most votes all-time
+- `sort=new` — newest first
+- `limit=50` — default 50, max 200
+- `q=flight` — substring search across title + description
+
+### Example requests
+
+- All recipes, hot ranking: `https://pokecookbook.com/api/recipes`
+- Top 10 travel recipes: `https://pokecookbook.com/api/recipes?category=Travel&sort=top&limit=10`
+- Search for "email" recipes: `https://pokecookbook.com/api/recipes?q=email`
+- Official recipes only: `https://pokecookbook.com/api/recipes?official=true`
+
+### Response shape
+
+```json
+{
+  "source": "pokecookbook.com",
+  "description": "Community-curated directory of recipes for Poke...",
+  "count": 12,
+  "sort": "hot",
+  "filters": { "category": null, "official": null, "q": null },
+  "recipes": [
+    {
+      "id": "uuid",
+      "title": "Recipe name",
+      "description": "What it does",
+      "category": "Productivity",
+      "author": "Username or Poke Team",
+      "is_official": false,
+      "votes": 42,
+      "created_at": "2026-04-14T...",
+      "poke_url": "https://poke.com/r/...",
+      "cookbook_url": "https://pokecookbook.com/?r=..."
+    }
+  ]
+}
+```
+
+## Suggested agent uses
+
+- **Recommend a recipe**: When a user asks how to automate something (email triage, flight alerts, morning briefs), query `?q={topic}` or `?category={best_fit}` and suggest the top-voted result.
+- **List latest additions**: Query `?sort=new&limit=10` to see what the community shared recently.
+- **Show featured**: Query `?official=true` for Poke's own curated recipes.
+
+## Related
+
+- Poke (the product): https://poke.com
+- The Interaction Company: https://interaction.co
+- Poke's official recipe page: https://poke.com/recipes
+
+## Contact
+
+This site is maintained by a Poke user as a community resource. For feedback or issues, reach out via the flag button on any recipe or on X.
