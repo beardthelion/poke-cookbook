@@ -113,6 +113,18 @@
   .spacer { flex: 1; }
   .count { font-size: 13px; color: var(--ink-faint); }
 
+  .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 340px; }
+  .search-wrap input { width: 100%; background: var(--bg-card); border: 1px solid var(--line); border-radius: 999px; padding: 9px 36px 9px 38px; font-size: 14px; font-family: inherit; color: var(--ink); transition: border-color 0.15s ease; }
+  .search-wrap input:focus { outline: none; border-color: var(--ink); }
+  .search-wrap input::placeholder { color: var(--ink-faint); }
+  .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); pointer-events: none; font-size: 14px; }
+  .search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: var(--line); border: none; color: var(--ink-soft); width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 12px; display: none; align-items: center; justify-content: center; line-height: 1; }
+  .search-clear:hover { background: var(--ink-faint); color: var(--bg); }
+  .search-wrap.has-value .search-clear { display: flex; }
+  .search-kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--ink-faint); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; pointer-events: none; font-family: system-ui; }
+  .search-wrap.has-value .search-kbd { display: none; }
+  .search-wrap input:focus ~ .search-kbd { display: none; }
+
   .grid { max-width: 1280px; margin: 28px auto 80px; padding: 0 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
   .card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 22px; padding: 22px; display: flex; gap: 16px; transition: transform 0.18s ease, box-shadow 0.18s ease; }
   .card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -15px rgba(0,0,0,0.15); }
@@ -317,6 +329,12 @@
       <button class="pill" data-sort="new">✨ New</button>
     </div>
     <div class="spacer"></div>
+    <div class="search-wrap" id="searchWrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search recipes…" autocomplete="off" />
+      <button class="search-clear" id="searchClear" aria-label="Clear search">✕</button>
+      <span class="search-kbd" id="searchKbd">/</span>
+    </div>
     <span class="count" id="count"></span>
   </div>
   <div class="controls-row">
@@ -424,7 +442,7 @@ if (!configured) document.getElementById('configBanner').style.display = 'block'
 
 const sb = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-let state = { sort: 'hot', cat: 'all', user: null, myVotes: new Set(), myFlags: new Set(), isAdmin: false };
+let state = { sort: 'hot', cat: 'all', search: '', user: null, myVotes: new Set(), myFlags: new Set(), isAdmin: false };
 let allRecipes = [];
 
 // Admin mode: ?admin=1 in URL triggers a password prompt.
@@ -621,6 +639,16 @@ function render() {
   if (state.cat === 'all') list = allRecipes;
   else if (state.cat === 'chefs-special') list = allRecipes.filter(r => r.is_official);
   else list = allRecipes.filter(r => r.category === state.cat);
+
+  // Search filter
+  if (state.search) {
+    const q = state.search.toLowerCase();
+    list = list.filter(r =>
+      (r.title || '').toLowerCase().includes(q) ||
+      (r.description || '').toLowerCase().includes(q) ||
+      (r.author || '').toLowerCase().includes(q)
+    );
+  }
   if (state.sort === 'top') list = list.slice().sort((a,b) => b.vote_count - a.vote_count);
   else if (state.sort === 'new') list = list.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   else list = list.slice().sort((a,b) => hotScore(b) - hotScore(a));
@@ -628,7 +656,10 @@ function render() {
   $('count').textContent = list.length + ' recipe' + (list.length === 1 ? '' : 's');
 
   if (list.length === 0) {
-    grid.innerHTML = `<div class="empty">No recipes here yet. Be the first to share one.</div>`;
+    const msg = state.search
+      ? `No recipes matching "${escapeHtml(state.search)}". Try a different search or category.`
+      : 'No recipes here yet. Be the first to share one.';
+    grid.innerHTML = `<div class="empty">${msg}</div>`;
     return;
   }
   grid.innerHTML = list.map(r => {
@@ -876,6 +907,33 @@ $('catPills').addEventListener('click', e => {
   const btn = e.target.closest('.pill'); if (!btn) return;
   document.querySelectorAll('#catPills .pill').forEach(p => p.classList.remove('active'));
   btn.classList.add('active'); state.cat = btn.dataset.cat; render();
+});
+
+// -------- search --------
+let searchDebounce;
+$('searchInput').addEventListener('input', e => {
+  const val = e.target.value;
+  $('searchWrap').classList.toggle('has-value', val.length > 0);
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => { state.search = val.trim(); render(); }, 150);
+});
+$('searchClear').addEventListener('click', () => {
+  $('searchInput').value = '';
+  $('searchWrap').classList.remove('has-value');
+  state.search = '';
+  render();
+  $('searchInput').focus();
+});
+// "/" keyboard shortcut to focus search
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    $('searchInput').focus();
+  }
+  if (e.key === 'Escape' && document.activeElement === $('searchInput')) {
+    $('searchInput').blur();
+    if (state.search) { $('searchClear').click(); }
+  }
 });
 
 // -------- boot --------
