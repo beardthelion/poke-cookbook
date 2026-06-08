@@ -436,6 +436,7 @@
         <div id="previewTitle" style="font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 4px;"></div>
         <div id="previewAuthor" style="font-family: 'Fraunces', serif; font-style: italic; font-size: 13px; color: var(--ink-faint); margin-bottom: 8px;"></div>
         <div id="previewDesc" style="font-size: 13px; color: var(--ink-soft); line-height: 1.45;"></div>
+        <div id="previewDup" style="display:none; margin-top: 10px; font-size: 12px; color: var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 8px 10px; line-height: 1.4;"></div>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn-ghost" data-close="submitModal">Cancel</button>
@@ -892,6 +893,7 @@ async function runFetch() {
   $('previewTitle').textContent = 'Loading…';
   $('previewAuthor').textContent = '';
   $('previewDesc').textContent = '';
+  $('previewDup').style.display = 'none';
   const meta = await fetchMeta(url);
   if (!meta || meta.error || !meta.title) {
     $('previewTitle').textContent = 'Could not read that recipe';
@@ -914,6 +916,23 @@ async function runFetch() {
   $('previewAuthor').textContent = previewAuthor ? 'by ' + previewAuthor : '';
   $('previewDesc').textContent = previewDesc;
   $('submitBtn').disabled = false;
+  checkDuplicateTitle(meta.title);
+}
+
+// Non-blocking heads-up: a recipe with this exact title is already listed.
+// Catches slug-vs-hash re-posts (same recipe, different URL) that URL
+// normalization can't unify. Purely advisory — submitting stays allowed.
+async function checkDuplicateTitle(title) {
+  const el = $('previewDup');
+  el.style.display = 'none';
+  el.textContent = '';
+  if (!sb || !title) return;
+  const { data, error } = await sb.from('recipes').select('author').eq('title', title).limit(5);
+  if (error || !data || !data.length) return;
+  const authors = [...new Set(data.map(r => r.author).filter(Boolean))];
+  const by = authors.length ? ' (by ' + authors.join(', ') + ')' : '';
+  el.textContent = `⚠ A recipe named “${title}”${by} is already in the cookbook. If it's the same one, no need to re-post — otherwise go ahead.`;
+  el.style.display = 'block';
 }
 
 $('url').addEventListener('blur', runFetch);
