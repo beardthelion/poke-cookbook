@@ -5,7 +5,7 @@ A community-built hub for Poke recipes. Front-end + Supabase backend.
 ## What's in this repo
 - `index.html` — the site (single file, no build step), plus `llms.txt`, `robots.txt`, `sitemap.xml`, `og-image.html`
 - `functions/api/[[path]].js` — Cloudflare Pages Function proxying `/api/*` to the Supabase Edge Functions
-- `supabase/migrations/` — database schema, RLS policies, triggers (apply `0001`→`0004` in order)
+- `supabase/migrations/` — database schema, RLS policies, triggers (apply in filename/timestamp order)
 - `supabase/functions/` — the `recipes-api`, `scrape-recipe`, and `admin-action` Edge Functions
 - `README.md` — this file
 
@@ -17,7 +17,7 @@ A community-built hub for Poke recipes. Front-end + Supabase backend.
 ## 2. Run the schema
 
 1. In the Supabase dashboard, open **SQL Editor** (left sidebar).
-2. Run the files in `supabase/migrations/` in order: paste `0001_initial_schema.sql`, **Run**, then `0002`, `0003`, `0004`. Each should report "Success. No rows returned." All are idempotent, so re-running is safe.
+2. Run the files in `supabase/migrations/` in filename order (oldest timestamp first): paste each one, **Run**, then the next. Each should report "Success. No rows returned." All are idempotent, so re-running is safe. (If you have the Supabase CLI linked, `supabase db push` does this for you — see "Deploying with the CLI" below.)
 3. Tables are now set up with RLS enabled.
 
 ## 3. Enable OAuth providers
@@ -68,6 +68,36 @@ Any static host works. Easiest options:
 
 After deploy, go back to Supabase → **Authentication → URL Configuration** and make sure your live URL is listed in **Site URL** and **Redirect URLs**.
 
+## Deploying with the CLI
+
+The frontend (`index.html`, `functions/`) auto-deploys to Cloudflare Pages on push to `main`. The Supabase backend (`supabase/`) is deployed separately with the [Supabase CLI](https://supabase.com/docs/guides/cli).
+
+One-time setup:
+
+```bash
+supabase login                              # opens a browser to authorize, or paste a personal access token
+supabase link --project-ref hznlynnxfwmnxixxnjnl   # prompts for the database password
+```
+
+The four migrations were originally applied by hand in the dashboard, so the remote migration history doesn't yet know about them. Tell it they're already applied (this records them without re-running the SQL):
+
+```bash
+supabase migration list                     # shows local vs remote; the four will show as local-only
+supabase migration repair --status applied 20260414140001 20260414140002 20260414140003 20260414140004
+```
+
+After that, normal workflow:
+
+```bash
+supabase migration new <name>               # create a new migration, edit the generated file
+supabase db push                            # apply pending migrations to the remote DB
+
+supabase functions deploy                   # deploy all three edge functions
+supabase functions deploy recipes-api       # or deploy just one
+```
+
+`verify_jwt = false` for all three functions is set in `supabase/config.toml`, matching their current deployment. The `ADMIN_PASSWORD` secret lives in the Supabase dashboard (Edge Functions → Secrets) and is not affected by deploys.
+
 ## How moderation works
 
 - Anyone signed in can flag a recipe (one flag per user per recipe).
@@ -87,7 +117,7 @@ To un-hide something (e.g. a false-flag storm):
 update recipes set is_hidden = false, flag_count = 0 where id = 'recipe-uuid-here';
 ```
 
-Want to change the flag threshold? Edit the `5` in `bump_flag_count()` inside `supabase/migrations/0001_initial_schema.sql` and re-run it.
+Want to change the flag threshold? Edit the `5` in `bump_flag_count()` inside `supabase/migrations/20260414140001_initial_schema.sql` and re-run it.
 
 ## How "Hot" ranking works
 
@@ -117,7 +147,7 @@ In your host (Cloudflare Pages / Netlify / Vercel), add the custom domain, point
 → Usually means the user isn't signed in, or the `user_id` in the payload doesn't match `auth.uid()`. The frontend uses `state.user.id` which should match.
 
 **Votes / flags aren't updating the counter**
-→ Check the triggers in the schema. Re-run `supabase/migrations/0001_initial_schema.sql` (it's idempotent).
+→ Check the triggers in the schema. Re-run `supabase/migrations/20260414140001_initial_schema.sql` (it's idempotent).
 
 **OAuth "redirect_uri_mismatch" from Google**
 → The callback URL in Google Cloud must match Supabase's exactly. Copy-paste from the Supabase provider settings.
