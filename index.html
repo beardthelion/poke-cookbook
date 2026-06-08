@@ -160,6 +160,8 @@
   .cat-realestate{background:var(--sky);color:#1f4872}
   .cat-food{background:var(--peach);color:#8a4420}
   .cat-style{background:var(--rose);color:#8a2e31}
+  .cat-business{background:var(--sky);color:#1f4872}
+  .cat-powerups{background:var(--accent-soft);color:#8a2e0b}
   .cat-other{background:var(--line);color:var(--ink-soft)}
 
   .card h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 20px; letter-spacing: -0.015em; line-height: 1.2; margin-bottom: 8px; }
@@ -348,6 +350,7 @@
     <div class="pill-group" id="catPills">
       <button class="pill active" data-cat="all">All</button>
       <button class="pill pill-chef" data-cat="chefs-special">🌴 Chef's Special</button>
+      <button class="pill" data-cat="Business">Business</button>
       <button class="pill" data-cat="Calendar">Calendar</button>
       <button class="pill" data-cat="Community">Community</button>
       <button class="pill" data-cat="Creative">Creative</button>
@@ -360,6 +363,7 @@
       <button class="pill" data-cat="Health">Health</button>
       <button class="pill" data-cat="Home">Home</button>
       <button class="pill" data-cat="News">News</button>
+      <button class="pill" data-cat="Power-ups">Power-ups</button>
       <button class="pill" data-cat="Productivity">Productivity</button>
       <button class="pill" data-cat="Real Estate">Real Estate</button>
       <button class="pill" data-cat="Research">Research</button>
@@ -417,13 +421,14 @@
         <label for="cat">Category</label>
         <select id="cat" required>
           <option value="">Pick one…</option>
-          <option>Calendar</option><option>Community</option><option>Creative</option>
-          <option>Developer</option><option>Email</option><option>Entertainment</option>
-          <option>Faith</option><option>Finance</option><option>Food</option>
-          <option>Health</option><option>Home</option><option>News</option>
-          <option>Productivity</option><option>Real Estate</option><option>Research</option>
-          <option>Shopping</option><option>Sports</option><option>Style</option>
-          <option>To-dos</option><option>Travel</option><option>Other</option>
+          <option>Business</option><option>Calendar</option><option>Community</option>
+          <option>Creative</option><option>Developer</option><option>Email</option>
+          <option>Entertainment</option><option>Faith</option><option>Finance</option>
+          <option>Food</option><option>Health</option><option>Home</option>
+          <option>News</option><option>Power-ups</option><option>Productivity</option>
+          <option>Real Estate</option><option>Research</option><option>Shopping</option>
+          <option>Sports</option><option>Style</option><option>To-dos</option>
+          <option>Travel</option><option>Other</option>
         </select>
       </div>
       <div id="preview" style="display:none; background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
@@ -637,7 +642,8 @@ function catClass(c) {
     'Community':'cat-community','Sports':'cat-sports',
     'Entertainment':'cat-entertainment','Research':'cat-research','News':'cat-news',
     'Creative':'cat-creative','Faith':'cat-faith','Real Estate':'cat-realestate',
-    'Food':'cat-food','Style':'cat-style' };
+    'Food':'cat-food','Style':'cat-style','Business':'cat-business',
+    'Power-ups':'cat-powerups' };
   return map[c] || 'cat-other';
 }
 function timeAgo(ts) {
@@ -684,7 +690,7 @@ function render() {
   grid.innerHTML = list.map(r => {
     const voted = state.myVotes.has(r.id);
     const flagged = state.myFlags.has(r.id);
-    const categories = ['Calendar','Community','Creative','Developer','Email','Entertainment','Faith','Finance','Food','Health','Home','News','Productivity','Real Estate','Research','Shopping','Sports','Style','To-dos','Travel','Other'];
+    const categories = ['Business','Calendar','Community','Creative','Developer','Email','Entertainment','Faith','Finance','Food','Health','Home','News','Power-ups','Productivity','Real Estate','Research','Shopping','Sports','Style','To-dos','Travel','Other'];
     const adminControls = state.isAdmin ? `
       <div class="admin-controls">
         <select class="admin-select" data-admin-cat="${r.id}">
