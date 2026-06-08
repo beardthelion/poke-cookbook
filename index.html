@@ -150,8 +150,6 @@
   .cat-travel{background:var(--sky);color:#1f4872}
   .cat-home{background:var(--lemon);color:#6b5608}
   .cat-todos{background:var(--rose);color:#8a2e31}
-  .cat-students{background:var(--lilac);color:#4a3680}
-  .cat-scheduling{background:var(--peach);color:#8a4420}
   .cat-community{background:var(--accent-soft);color:#8a2e0b}
   .cat-sports{background:var(--mint);color:#2e5932}
   .cat-entertainment{background:var(--lilac);color:#4a3680}
@@ -365,10 +363,8 @@
       <button class="pill" data-cat="Productivity">Productivity</button>
       <button class="pill" data-cat="Real Estate">Real Estate</button>
       <button class="pill" data-cat="Research">Research</button>
-      <button class="pill" data-cat="Scheduling">Scheduling</button>
       <button class="pill" data-cat="Shopping">Shopping</button>
       <button class="pill" data-cat="Sports">Sports</button>
-      <button class="pill" data-cat="Students">Students</button>
       <button class="pill" data-cat="Style">Style</button>
       <button class="pill" data-cat="To-dos">To-dos</button>
       <button class="pill" data-cat="Travel">Travel</button>
@@ -426,9 +422,8 @@
           <option>Faith</option><option>Finance</option><option>Food</option>
           <option>Health</option><option>Home</option><option>News</option>
           <option>Productivity</option><option>Real Estate</option><option>Research</option>
-          <option>Scheduling</option><option>Shopping</option><option>Sports</option>
-          <option>Students</option><option>Style</option><option>To-dos</option>
-          <option>Travel</option><option>Other</option>
+          <option>Shopping</option><option>Sports</option><option>Style</option>
+          <option>To-dos</option><option>Travel</option><option>Other</option>
         </select>
       </div>
       <div id="preview" style="display:none; background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
@@ -638,8 +633,8 @@ function updateStats() {
 function catClass(c) {
   const map = { 'Health':'cat-health','Developer':'cat-developer','Productivity':'cat-productivity',
     'Email':'cat-email','Calendar':'cat-calendar','Finance':'cat-finance','Shopping':'cat-shopping',
-    'Travel':'cat-travel','Home':'cat-home','To-dos':'cat-todos','Students':'cat-students',
-    'Scheduling':'cat-scheduling','Community':'cat-community','Sports':'cat-sports',
+    'Travel':'cat-travel','Home':'cat-home','To-dos':'cat-todos',
+    'Community':'cat-community','Sports':'cat-sports',
     'Entertainment':'cat-entertainment','Research':'cat-research','News':'cat-news',
     'Creative':'cat-creative','Faith':'cat-faith','Real Estate':'cat-realestate',
     'Food':'cat-food','Style':'cat-style' };
@@ -689,7 +684,7 @@ function render() {
   grid.innerHTML = list.map(r => {
     const voted = state.myVotes.has(r.id);
     const flagged = state.myFlags.has(r.id);
-    const categories = ['Calendar','Community','Creative','Developer','Email','Entertainment','Faith','Finance','Food','Health','Home','News','Productivity','Real Estate','Research','Scheduling','Shopping','Sports','Students','Style','To-dos','Travel','Other'];
+    const categories = ['Calendar','Community','Creative','Developer','Email','Entertainment','Faith','Finance','Food','Health','Home','News','Productivity','Real Estate','Research','Shopping','Sports','Style','To-dos','Travel','Other'];
     const adminControls = state.isAdmin ? `
       <div class="admin-controls">
         <select class="admin-select" data-admin-cat="${r.id}">
