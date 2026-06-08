@@ -153,6 +153,12 @@
   .cat-students{background:var(--lilac);color:#4a3680}
   .cat-scheduling{background:var(--peach);color:#8a4420}
   .cat-community{background:var(--accent-soft);color:#8a2e0b}
+  .cat-sports{background:var(--mint);color:#2e5932}
+  .cat-entertainment{background:var(--lilac);color:#4a3680}
+  .cat-research{background:var(--sky);color:#1f4872}
+  .cat-news{background:var(--peach);color:#8a4420}
+  .cat-creative{background:var(--rose);color:#8a2e31}
+  .cat-faith{background:var(--lemon);color:#6b5608}
   .cat-other{background:var(--line);color:var(--ink-soft)}
 
   .card h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 20px; letter-spacing: -0.015em; line-height: 1.2; margin-bottom: 8px; }
@@ -343,14 +349,20 @@
       <button class="pill pill-chef" data-cat="chefs-special">🌴 Chef's Special</button>
       <button class="pill" data-cat="Calendar">Calendar</button>
       <button class="pill" data-cat="Community">Community</button>
+      <button class="pill" data-cat="Creative">Creative</button>
       <button class="pill" data-cat="Developer">Developer</button>
       <button class="pill" data-cat="Email">Email</button>
+      <button class="pill" data-cat="Entertainment">Entertainment</button>
+      <button class="pill" data-cat="Faith">Faith</button>
       <button class="pill" data-cat="Finance">Finance</button>
       <button class="pill" data-cat="Health">Health</button>
       <button class="pill" data-cat="Home">Home</button>
+      <button class="pill" data-cat="News">News</button>
       <button class="pill" data-cat="Productivity">Productivity</button>
+      <button class="pill" data-cat="Research">Research</button>
       <button class="pill" data-cat="Scheduling">Scheduling</button>
       <button class="pill" data-cat="Shopping">Shopping</button>
+      <button class="pill" data-cat="Sports">Sports</button>
       <button class="pill" data-cat="Students">Students</button>
       <button class="pill" data-cat="To-dos">To-dos</button>
       <button class="pill" data-cat="Travel">Travel</button>
@@ -403,10 +415,12 @@
         <label for="cat">Category</label>
         <select id="cat" required>
           <option value="">Pick one…</option>
-          <option>Calendar</option><option>Community</option><option>Developer</option>
-          <option>Email</option><option>Finance</option><option>Health</option>
-          <option>Home</option><option>Productivity</option><option>Scheduling</option>
-          <option>Shopping</option><option>Students</option><option>To-dos</option>
+          <option>Calendar</option><option>Community</option><option>Creative</option>
+          <option>Developer</option><option>Email</option><option>Entertainment</option>
+          <option>Faith</option><option>Finance</option><option>Health</option>
+          <option>Home</option><option>News</option><option>Productivity</option>
+          <option>Research</option><option>Scheduling</option><option>Shopping</option>
+          <option>Sports</option><option>Students</option><option>To-dos</option>
           <option>Travel</option><option>Other</option>
         </select>
       </div>
@@ -618,7 +632,9 @@ function catClass(c) {
   const map = { 'Health':'cat-health','Developer':'cat-developer','Productivity':'cat-productivity',
     'Email':'cat-email','Calendar':'cat-calendar','Finance':'cat-finance','Shopping':'cat-shopping',
     'Travel':'cat-travel','Home':'cat-home','To-dos':'cat-todos','Students':'cat-students',
-    'Scheduling':'cat-scheduling','Community':'cat-community' };
+    'Scheduling':'cat-scheduling','Community':'cat-community','Sports':'cat-sports',
+    'Entertainment':'cat-entertainment','Research':'cat-research','News':'cat-news',
+    'Creative':'cat-creative','Faith':'cat-faith' };
   return map[c] || 'cat-other';
 }
 function timeAgo(ts) {
@@ -665,7 +681,7 @@ function render() {
   grid.innerHTML = list.map(r => {
     const voted = state.myVotes.has(r.id);
     const flagged = state.myFlags.has(r.id);
-    const categories = ['Calendar','Community','Developer','Email','Finance','Health','Home','Productivity','Scheduling','Shopping','Students','To-dos','Travel','Other'];
+    const categories = ['Calendar','Community','Creative','Developer','Email','Entertainment','Faith','Finance','Health','Home','News','Productivity','Research','Scheduling','Shopping','Sports','Students','To-dos','Travel','Other'];
     const adminControls = state.isAdmin ? `
       <div class="admin-controls">
         <select class="admin-select" data-admin-cat="${r.id}">
