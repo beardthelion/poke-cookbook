@@ -1,0 +1,13 @@
+# Local-only project notes (contains personal info / strategy — never publish)
+project-context.md
+
+# Claude Code session + local settings
+.remember/
+.claude/settings.local.json
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

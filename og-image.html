@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Poke Cookbook OG Image</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    margin: 0;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Inter Tight', sans-serif;
+  }
+
+  .og {
+    width: 1200px;
+    height: 630px;
+    background: #f4efe6;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(255,90,31,0.15), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(207,227,247,0.6), transparent 50%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px;
+    color: #1a1a1a;
+    overflow: hidden;
+  }
+
+  /* Decorative palm in corner */
+  .palm-corner {
+    position: absolute;
+    top: 50px;
+    left: 60px;
+    font-size: 36px;
+    opacity: 0.9;
+  }
+
+  .brand-mark {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 60px;
+  }
+  .dot {
+    width: 16px; height: 16px;
+    background: #ff5a1f;
+    border-radius: 50%;
+  }
+  .brand-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 36px;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 96px;
+    line-height: 1.0;
+    letter-spacing: -0.035em;
+    text-align: center;
+    max-width: 1000px;
+  }
+  h1 em {
+    font-style: italic;
+    color: #ff5a1f;
+    font-weight: 500;
+  }
+
+  .tagline {
+    margin-top: 40px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 28px;
+    color: #5c5c5c;
+    text-align: center;
+  }
+
+  .url {
+    position: absolute;
+    bottom: 50px;
+    right: 60px;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 22px;
+    color: #5c5c5c;
+    font-weight: 500;
+  }
+
+  .url-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: #ff5a1f;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    margin-bottom: 2px;
+  }
+
+  /* Helper for screenshotting */
+  .hint {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 14px;
+    background: rgba(0,0,0,0.7);
+    padding: 8px 16px;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="og">
+  <div class="palm-corner">🌴</div>
+
+  <div class="brand-mark">
+    <span class="dot"></span>
+    <span class="brand-name">Poke Cookbook</span>
+  </div>
+
+  <h1>The recipes <em>the community</em><br>is actually cooking.</h1>
+
+  <div class="tagline">a community hub for Poke recipes</div>
+
+  <div class="url"><span class="url-dot"></span>pokecookbook.com</div>
+</div>
+
+<div class="hint">Right-click the cream area → "Save image as" or take a screenshot at 1200×630</div>
+
+</body>
+</html>
