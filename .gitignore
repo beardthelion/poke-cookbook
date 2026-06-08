@@ -5,6 +5,9 @@ project-context.md
 .remember/
 .claude/settings.local.json
 
+# Local-only planning / design scratch (not part of the published project)
+docs/superpowers/
+
 # OS / editor cruft
 .DS_Store
 Thumbs.db
