@@ -78,8 +78,10 @@ serve(async (req) => {
 
     // Highest-confidence source: the structured "creatorName" field in the page's
     // embedded JSON. Search the raw html (before scripts are stripped), since this
-    // lives in a data blob, not the visible markup.
-    const creatorMatch = html.match(/"creatorName"\s*:\s*"([^"]+)"/i);
+    // lives in a data blob, not the visible markup. The blob is the Next.js RSC
+    // flight payload where quotes are backslash-escaped (\"creatorName\":\"...\"),
+    // so the optional \\? handles both escaped and plain JSON forms.
+    const creatorMatch = html.match(/creatorName\\?"\s*:\s*\\?"([^"\\]+)/i);
     if (creatorMatch && creatorMatch[1]) {
       const candidate = decodeEntities(creatorMatch[1].trim());
       const lower = candidate.toLowerCase();
