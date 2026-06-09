@@ -1,6 +1,9 @@
 # Local-only project notes (contains personal info / strategy — never publish)
 project-context.md
 
+# Local-only Claude Code working instructions (kept out of the public repo)
+CLAUDE.md
+
 # Claude Code session + local settings
 .remember/
 .claude/settings.local.json
