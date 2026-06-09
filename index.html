@@ -170,6 +170,10 @@
   .card-meta .by { font-family: 'Fraunces', serif; font-style: italic; }
   .card-link { display: inline-flex; gap: 6px; color: var(--ink); font-weight: 500; font-size: 13px; }
   .card-link:hover { color: var(--accent); }
+  .card-title-link { color: inherit; }
+  .card-title-link:hover { color: var(--accent); }
+  .author-link { color: var(--ink-soft); font-weight: 500; }
+  .author-link:hover { color: var(--accent); }
 
   .empty, .loading { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--ink-faint); font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; }
 
@@ -594,7 +598,7 @@ async function fetchRecipes() {
   }
   const { data, error } = await sb
     .from('recipes')
-    .select('id,title,description,url,category,author,vote_count,created_at,is_official')
+    .select('id,title,description,url,category,author,author_url,vote_count,created_at,is_official')
     .eq('is_hidden', false)
     .limit(200);
   if (error) { toast('Failed to load'); console.error(error); return []; }
@@ -646,6 +650,15 @@ function catClass(c) {
     'Food':'cat-food','Style':'cat-style','Business':'cat-business',
     'Power-ups':'cat-powerups' };
   return map[c] || 'cat-other';
+}
+function isPlaceholderAuthor(a){ return !a || ['poke team','community'].includes(String(a).trim().toLowerCase()); }
+function authorByline(r){
+  if (!r.author) return '';
+  const name = escapeHtml(r.author);
+  const inner = isPlaceholderAuthor(r.author)
+    ? name
+    : `<a class="author-link" href="/u/${encodeURIComponent(r.author)}">${name}</a>`;
+  return 'by ' + inner + ' · ';
 }
 function timeAgo(ts) {
   const s = (Date.now() - new Date(ts).getTime()) / 1000;
@@ -712,11 +725,11 @@ function render() {
             <span class="card-cat ${catClass(r.category)}">${escapeHtml(r.category)}</span>
             <button class="flag-btn ${flagged ? 'flagged' : ''}" data-flag="${r.id}" title="Flag for abuse">⚑</button>
           </div>
-          <h3>${escapeHtml(r.title)}${r.is_official ? '<span class="official-badge">🌴 official</span>' : ''}</h3>
+          <h3><a class="card-title-link" href="/r/${escapeHtml(r.id)}">${escapeHtml(r.title)}</a>${r.is_official ? '<span class="official-badge">🌴 official</span>' : ''}</h3>
           <p class="desc">${escapeHtml(r.description)}</p>
           <div class="card-meta">
-            <span class="by">${r.author ? 'by ' + escapeHtml(r.author) + ' · ' : ''}added ${timeAgo(r.created_at)}</span>
-            <a class="card-link" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">Open ↗</a>
+            <span class="by">${authorByline(r)}added ${timeAgo(r.created_at)}</span>
+            <a class="card-link" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">Open in Poke ↗</a>
           </div>
           ${adminControls}
         </div>
@@ -842,6 +855,7 @@ $('submitForm').addEventListener('submit', async e => {
     url: url,
     category: $('cat').value,
     author: isOfficial ? 'Poke Team' : (fetchedMeta.author || null),
+    author_url: isOfficial ? null : (fetchedMeta.author_url || null),
     is_official: isOfficial,
   };
   const { error } = await sb.from('recipes').insert(payload).select().single();
