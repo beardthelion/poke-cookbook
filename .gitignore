@@ -8,6 +8,9 @@ project-context.md
 # Local-only planning / design scratch (not part of the published project)
 docs/superpowers/
 
+# Cloudflare Wrangler local state (created by `wrangler pages dev`)
+.wrangler/
+
 # OS / editor cruft
 .DS_Store
 Thumbs.db
