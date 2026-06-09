@@ -76,6 +76,18 @@ serve(async (req) => {
     // Author extraction — try several patterns since Poke's HTML might vary.
     let author = "";
 
+    // Highest-confidence source: the structured "creatorName" field in the page's
+    // embedded JSON. Search the raw html (before scripts are stripped), since this
+    // lives in a data blob, not the visible markup.
+    const creatorMatch = html.match(/"creatorName"\s*:\s*"([^"]+)"/i);
+    if (creatorMatch && creatorMatch[1]) {
+      const candidate = decodeEntities(creatorMatch[1].trim());
+      const lower = candidate.toLowerCase();
+      if (candidate.length >= 2 && !["poke", "made", "with", "the", "us"].includes(lower)) {
+        author = candidate;
+      }
+    }
+
     // First, strip scripts/styles so we don't match inside them
     const cleanHtml = html.replace(/<script[\s\S]*?<\/script>/gi, '')
                           .replace(/<style[\s\S]*?<\/style>/gi, '');
@@ -95,16 +107,19 @@ serve(async (req) => {
       />By\s+([A-Za-z0-9_.\-]+(?: [A-Za-z0-9_.\-]+)*)/i,
     ];
 
-    for (const re of authorPatterns) {
-      const m = cleanHtml.match(re);
-      if (m && m[1]) {
-        const candidate = decodeEntities(m[1].trim());
-        const lower = candidate.toLowerCase();
-        // Skip common false positives
-        if (["poke", "made", "with", "the", "us"].includes(lower)) continue;
-        if (candidate.length < 2) continue;
-        author = candidate;
-        break;
+    // Fall back to scraping the visible HTML only if creatorName was not found.
+    if (!author) {
+      for (const re of authorPatterns) {
+        const m = cleanHtml.match(re);
+        if (m && m[1]) {
+          const candidate = decodeEntities(m[1].trim());
+          const lower = candidate.toLowerCase();
+          // Skip common false positives
+          if (["poke", "made", "with", "the", "us"].includes(lower)) continue;
+          if (candidate.length < 2) continue;
+          author = candidate;
+          break;
+        }
       }
     }
 
