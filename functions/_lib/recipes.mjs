@@ -42,24 +42,22 @@ export function catClass(cat) {
 
 const RECIPE_COLS = 'id,title,description,url,category,author,author_url,vote_count,is_official,created_at';
 
-async function pgFetch(path) {
+async function pgFetch(path, { nullOnStatus } = {}) {
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
   });
+  if (nullOnStatus && resp.status === nullOnStatus) return null;
   if (!resp.ok) throw new Error(`PostgREST ${resp.status}`);
   return resp.json();
 }
 
 export async function getRecipeById(id) {
-  const url = `recipes?id=eq.${encodeURIComponent(id)}&is_hidden=eq.false&select=${RECIPE_COLS}&limit=1`;
-  const resp = await fetch(`${SUPABASE_URL}/rest/v1/${url}`, {
-    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
-  });
-  // 400 means invalid UUID syntax — treat as not found rather than throwing
-  if (resp.status === 400) return null;
-  if (!resp.ok) throw new Error(`PostgREST ${resp.status}`);
-  const rows = await resp.json();
-  return rows[0] || null;
+  // 400 means invalid UUID syntax; treat as not found rather than throwing
+  const rows = await pgFetch(
+    `recipes?id=eq.${encodeURIComponent(id)}&is_hidden=eq.false&select=${RECIPE_COLS}&limit=1`,
+    { nullOnStatus: 400 }
+  );
+  return rows?.[0] ?? null;
 }
 
 export async function getRecipesByAuthor(author) {

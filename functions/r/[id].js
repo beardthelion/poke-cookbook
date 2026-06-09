@@ -3,6 +3,12 @@ import {
   escapeHtml, catClass, isPlaceholderAuthor, SITE,
 } from '../_lib/recipes.mjs';
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function formatDate(iso) {
+  const d = new Date(iso);
+  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+}
+
 export async function onRequest(context) {
   const id = context.params.id;
   let recipe;
@@ -19,7 +25,7 @@ export async function onRequest(context) {
   if (!recipe) return notFoundResponse('Recipe not found');
 
   const canonical = `${SITE}/r/${recipe.id}`;
-  const created = new Date(recipe.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const created = formatDate(recipe.created_at);
   const authorHtml = recipe.author
     ? (isPlaceholderAuthor(recipe.author)
         ? `by ${escapeHtml(recipe.author)} · `
