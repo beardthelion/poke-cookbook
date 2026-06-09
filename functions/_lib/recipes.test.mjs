@@ -30,3 +30,27 @@ test('catClass maps known categories and falls back to cat-other', () => {
   assert.equal(catClass('Real Estate'), 'cat-realestate');
   assert.equal(catClass('Nonexistent'), 'cat-other');
 });
+
+import { pageDocument } from './recipes.mjs';
+
+test('pageDocument builds a valid doc with escaped, canonical meta', () => {
+  const html = pageDocument({
+    title: 'A <recipe> & "thing"',
+    description: 'desc',
+    canonical: 'https://pokecookbook.com/r/abc',
+    ogType: 'article',
+    body: '<main>hi</main>',
+  });
+  assert.ok(html.startsWith('<!DOCTYPE html>'));
+  assert.ok(html.includes('<title>A &lt;recipe&gt; &amp; &quot;thing&quot;</title>'));
+  assert.ok(html.includes('<link rel="canonical" href="https://pokecookbook.com/r/abc">'));
+  assert.ok(html.includes('<meta property="og:type" content="article">'));
+  assert.ok(html.includes('<main>hi</main>'));
+});
+
+test('truncate hard-cuts a string with no spaces', () => {
+  const noSpace = 'x'.repeat(200);
+  const out = truncate(noSpace, 160);
+  assert.ok(out.length <= 161);
+  assert.ok(out.endsWith('…'));
+});
