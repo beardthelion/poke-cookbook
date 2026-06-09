@@ -54,3 +54,15 @@ test('truncate hard-cuts a string with no spaces', () => {
   assert.ok(out.length <= 161);
   assert.ok(out.endsWith('…'));
 });
+
+import { safeProfileUrl } from './recipes.mjs';
+
+test('safeProfileUrl allows poke.com /u/ links and rejects other schemes/hosts', () => {
+  assert.equal(safeProfileUrl('https://poke.com/u/amit'), 'https://poke.com/u/amit');
+  assert.equal(safeProfileUrl('http://www.poke.com/u/amit'), 'http://www.poke.com/u/amit');
+  assert.equal(safeProfileUrl('javascript:alert(document.cookie)'), null);
+  assert.equal(safeProfileUrl('https://evil.com/u/x'), null);
+  assert.equal(safeProfileUrl('https://poke.com/r/abc'), null);
+  assert.equal(safeProfileUrl(null), null);
+  assert.equal(safeProfileUrl(''), null);
+});

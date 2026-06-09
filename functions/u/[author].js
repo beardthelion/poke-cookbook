@@ -1,6 +1,6 @@
 import {
   getRecipesByAuthor, pageDocument, htmlResponse, notFoundResponse,
-  escapeHtml, catClass, isPlaceholderAuthor, SITE,
+  escapeHtml, catClass, isPlaceholderAuthor, safeProfileUrl, SITE,
 } from '../_lib/recipes.mjs';
 
 export async function onRequest(context) {
@@ -21,7 +21,7 @@ export async function onRequest(context) {
   if (!recipes || recipes.length === 0) return notFoundResponse('Author not found');
 
   const canonical = `${SITE}/u/${encodeURIComponent(author)}`;
-  const profile = recipes.find(r => r.author_url)?.author_url || null;
+  const profile = recipes.map(r => safeProfileUrl(r.author_url)).find(Boolean) || null;
   const profileHtml = profile
     ? ` · <a href="${escapeHtml(profile)}" target="_blank" rel="noopener">View on Poke ↗</a>`
     : '';

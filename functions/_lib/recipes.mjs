@@ -28,6 +28,14 @@ export function isPlaceholderAuthor(author) {
   return !author || PLACEHOLDER_AUTHORS.has(String(author).trim().toLowerCase());
 }
 
+// Only treat a stored author_url as linkable if it is an http(s) poke.com /u/ profile
+// URL. author_url is attacker-writable (open submissions), so validate before rendering
+// it as a clickable link, otherwise a javascript: value would be a stored XSS.
+export function safeProfileUrl(url) {
+  const s = String(url ?? '');
+  return /^https?:\/\/(www\.)?poke\.com\/u\/[A-Za-z0-9_.\-]+/i.test(s) ? s : null;
+}
+
 export function catClass(cat) {
   const map = {
     'Health':'cat-health','Developer':'cat-developer','Productivity':'cat-productivity',
