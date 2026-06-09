@@ -7,15 +7,15 @@ export async function onRequest() {
   } catch (e) {
     rows = [];
   }
-  const authors = new Set();
+  const handles = new Set();
   for (const r of rows) {
-    if (!isPlaceholderAuthor(r.author)) authors.add(r.author);
+    if (r.author_handle && !isPlaceholderAuthor(r.author_handle)) handles.add(r.author_handle);
   }
   const urls = [
     `${SITE}/`,
     `${SITE}/llms.txt`,
     ...rows.map(r => `${SITE}/r/${r.id}`),
-    ...[...authors].map(a => `${SITE}/u/${encodeURIComponent(a)}`),
+    ...[...handles].map(h => `${SITE}/u/${encodeURIComponent(h)}`),
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

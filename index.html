@@ -598,7 +598,7 @@ async function fetchRecipes() {
   }
   const { data, error } = await sb
     .from('recipes')
-    .select('id,title,description,url,category,author,author_url,vote_count,created_at,is_official')
+    .select('id,title,description,url,category,author,author_url,author_handle,vote_count,created_at,is_official')
     .eq('is_hidden', false)
     .limit(200);
   if (error) { toast('Failed to load'); console.error(error); return []; }
@@ -655,9 +655,10 @@ function isPlaceholderAuthor(a){ return !a || ['poke team','community'].includes
 function authorByline(r){
   if (!r.author) return '';
   const name = escapeHtml(r.author);
-  const inner = isPlaceholderAuthor(r.author)
+  const handle = r.author_handle || r.author;
+  const inner = isPlaceholderAuthor(handle)
     ? name
-    : `<a class="author-link" href="/u/${encodeURIComponent(r.author)}">${name}</a>`;
+    : `<a class="author-link" href="/u/${encodeURIComponent(handle)}">${name}</a>`;
   return 'by ' + inner + ' · ';
 }
 function timeAgo(ts) {
@@ -705,6 +706,12 @@ function render() {
     const voted = state.myVotes.has(r.id);
     const flagged = state.myFlags.has(r.id);
     const categories = ['Business','Calendar','Community','Creative','Developer','Email','Entertainment','Faith','Finance','Food','Health','Home','News','Power-ups','Productivity','Real Estate','Research','Shopping','Sports','Style','To-dos','Travel','Other'];
+    const handleVal = r.author_handle || '';
+    const nameControl = (handleVal && !isPlaceholderAuthor(handleVal)) ? `
+        <div class="admin-name">
+          <input class="admin-name-input" placeholder="display name for @${escapeHtml(handleVal)}">
+          <button class="admin-btn" data-admin-savename="${escapeHtml(handleVal)}">Set name</button>
+        </div>` : '';
     const adminControls = state.isAdmin ? `
       <div class="admin-controls">
         <select class="admin-select" data-admin-cat="${r.id}">
@@ -712,6 +719,7 @@ function render() {
         </select>
         ${r.is_hidden ? `<button class="admin-btn" data-admin-unhide="${r.id}">Restore (${r.flag_count} flags)</button>` : ''}
         <button class="admin-btn danger" data-admin-delete="${r.id}">Delete</button>
+        ${nameControl}
       </div>
     ` : '';
     return `
@@ -740,6 +748,10 @@ function render() {
   grid.querySelectorAll('[data-admin-cat]').forEach(s => s.onchange = () => adminUpdateCategory(s.dataset.adminCat, s.value));
   grid.querySelectorAll('[data-admin-delete]').forEach(b => b.onclick = () => adminDelete(b.dataset.adminDelete));
   grid.querySelectorAll('[data-admin-unhide]').forEach(b => b.onclick = () => adminUnhide(b.dataset.adminUnhide));
+  grid.querySelectorAll('[data-admin-savename]').forEach(b => b.onclick = () => {
+    const input = b.closest('.admin-name').querySelector('.admin-name-input');
+    adminSetName(b.dataset.adminSavename, input.value.trim());
+  });
 }
 
 // -------- actions --------
@@ -826,6 +838,20 @@ async function adminUnhide(id) {
     if (/unauthori[sz]ed/i.test(e.message)) sessionStorage.removeItem('pc_admin_pw');
   }
 }
+async function adminSetName(handle, displayName) {
+  try {
+    await callAdminAction({
+      password: getAdminPassword(),
+      action: 'set_author_name',
+      handle,
+      displayName,
+    });
+    toast(displayName ? `Name set for @${handle}` : `Name cleared for @${handle}`);
+  } catch (e) {
+    toast('Set name failed: ' + e.message);
+    if (/unauthori[sz]ed/i.test(e.message)) sessionStorage.removeItem('pc_admin_pw');
+  }
+}
 
 // Cached metadata from fetch; required before submit is enabled
 let fetchedMeta = null;
@@ -856,6 +882,7 @@ $('submitForm').addEventListener('submit', async e => {
     category: $('cat').value,
     author: isOfficial ? 'Poke Team' : (fetchedMeta.author || null),
     author_url: isOfficial ? null : (fetchedMeta.author_url || null),
+    author_handle: isOfficial ? 'Poke Team' : (fetchedMeta.author || null),
     is_official: isOfficial,
   };
   const { error } = await sb.from('recipes').insert(payload).select().single();

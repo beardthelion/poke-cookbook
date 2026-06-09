@@ -36,6 +36,14 @@ export function safeProfileUrl(url) {
   return /^https?:\/\/(www\.)?poke\.com\/u\/[A-Za-z0-9_.\-]+/i.test(s) ? s : null;
 }
 
+// Display label for an author: "Name (@handle)" when a distinct friendly name is
+// known, otherwise just the handle (no @). Empty handle yields empty string.
+export function authorLabel(handle, displayName) {
+  if (!handle) return '';
+  const h = String(handle);
+  return displayName && displayName !== h ? `${displayName} (@${h})` : h;
+}
+
 export function catClass(cat) {
   const map = {
     'Health':'cat-health','Developer':'cat-developer','Productivity':'cat-productivity',
@@ -48,7 +56,7 @@ export function catClass(cat) {
   return map[cat] || 'cat-other';
 }
 
-const RECIPE_COLS = 'id,title,description,url,category,author,author_url,vote_count,is_official,created_at';
+const RECIPE_COLS = 'id,title,description,url,category,author,author_url,author_handle,vote_count,is_official,created_at';
 
 async function pgFetch(path, { nullOnStatus } = {}) {
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -68,13 +76,19 @@ export async function getRecipeById(id) {
   return rows?.[0] ?? null;
 }
 
-export async function getRecipesByAuthor(author) {
+export async function getRecipesByHandle(handle) {
   return pgFetch(
-    `recipes?author=eq.${encodeURIComponent(author)}&is_hidden=eq.false&select=${RECIPE_COLS}&order=vote_count.desc`);
+    `recipes?author_handle=eq.${encodeURIComponent(handle)}&is_hidden=eq.false&select=${RECIPE_COLS}&order=vote_count.desc`);
+}
+
+export async function getAuthorProfile(handle) {
+  const rows = await pgFetch(
+    `author_profiles?handle=eq.${encodeURIComponent(handle)}&select=display_name&limit=1`);
+  return rows?.[0]?.display_name || null;
 }
 
 export async function getSitemapRows() {
-  return pgFetch(`recipes?is_hidden=eq.false&select=id,author&order=created_at.desc`);
+  return pgFetch(`recipes?is_hidden=eq.false&select=id,author_handle&order=created_at.desc`);
 }
 
 const PAGE_CSS = `

@@ -1,5 +1,6 @@
 import {
-  getRecipeById, pageDocument, htmlResponse, notFoundResponse,
+  getRecipeById, getAuthorProfile, authorLabel,
+  pageDocument, htmlResponse, notFoundResponse,
   escapeHtml, catClass, isPlaceholderAuthor, SITE,
 } from '../_lib/recipes.mjs';
 
@@ -26,11 +27,17 @@ export async function onRequest(context) {
 
   const canonical = `${SITE}/r/${recipe.id}`;
   const created = formatDate(recipe.created_at);
-  const authorHtml = recipe.author
-    ? (isPlaceholderAuthor(recipe.author)
-        ? `by ${escapeHtml(recipe.author)} · `
-        : `by <a href="/u/${encodeURIComponent(recipe.author)}">${escapeHtml(recipe.author)}</a> · `)
-    : '';
+  // Group/link by the canonical handle; fall back to the legacy author string if a
+  // recipe was not backfilled. Friendly name (if any) comes from author_profiles.
+  const handle = recipe.author_handle || recipe.author;
+  let authorHtml = '';
+  if (handle) {
+    const displayName = isPlaceholderAuthor(handle) ? null : await getAuthorProfile(handle);
+    const label = authorLabel(handle, displayName);
+    authorHtml = isPlaceholderAuthor(handle)
+      ? `by ${escapeHtml(label)} · `
+      : `by <a href="/u/${encodeURIComponent(handle)}">${escapeHtml(label)}</a> · `;
+  }
 
   const body = `
     <a class="back" href="/">← Poke Cookbook</a>

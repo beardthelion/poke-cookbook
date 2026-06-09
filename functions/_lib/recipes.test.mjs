@@ -66,3 +66,15 @@ test('safeProfileUrl allows poke.com /u/ links and rejects other schemes/hosts',
   assert.equal(safeProfileUrl(null), null);
   assert.equal(safeProfileUrl(''), null);
 });
+
+import { authorLabel } from './recipes.mjs';
+
+test('authorLabel formats name + handle, falls back to bare handle', () => {
+  assert.equal(authorLabel('satoshi', 'Beardthelion'), 'Beardthelion (@satoshi)');
+  assert.equal(authorLabel('satoshi', null), 'satoshi');
+  assert.equal(authorLabel('satoshi', ''), 'satoshi');
+  assert.equal(authorLabel('satoshi', 'satoshi'), 'satoshi'); // name == handle -> just handle
+  assert.equal(authorLabel('Harshit Khemani', null), 'Harshit Khemani');
+  assert.equal(authorLabel('', 'x'), '');
+  assert.equal(authorLabel(null, null), '');
+});
