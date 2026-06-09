@@ -108,8 +108,17 @@ serve(async (req) => {
       }
     }
 
+    // Author profile URL (poke.com/u/<handle>), captured when present.
+    let authorUrl = "";
+    const profileMatch = cleanHtml.match(/href=["']([^"']*\/u\/[A-Za-z0-9_.\-]+)["']/i);
+    if (profileMatch && profileMatch[1]) {
+      let href = profileMatch[1];
+      if (href.startsWith("/")) href = "https://poke.com" + href;
+      authorUrl = href;
+    }
+
     return new Response(
-      JSON.stringify({ title, description, author }),
+      JSON.stringify({ title, description, author, author_url: authorUrl }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
