@@ -27,7 +27,7 @@ serve(async (req) => {
   }
 
   try {
-    const { password, action, recipeId, category } = await req.json();
+    const { password, action, recipeId, category, handle, displayName } = await req.json();
 
     const adminPassword = Deno.env.get("ADMIN_PASSWORD");
     if (!adminPassword) {
@@ -45,7 +45,7 @@ serve(async (req) => {
     }
 
     // verify action doesn't need a recipeId
-    if (action !== "verify" && action !== "list_hidden") {
+    if (action !== "verify" && action !== "list_hidden" && action !== "set_author_name") {
       if (!recipeId || typeof recipeId !== "string") {
         return new Response(
           JSON.stringify({ error: "Missing recipeId" }),
@@ -127,6 +127,32 @@ serve(async (req) => {
           .delete()
           .eq("recipe_id", recipeId);
         if (flagsErr) throw flagsErr;
+        return new Response(
+          JSON.stringify({ ok: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "set_author_name": {
+        if (!handle || typeof handle !== "string") {
+          return new Response(
+            JSON.stringify({ error: "Missing handle" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        const name = typeof displayName === "string" ? displayName.trim() : "";
+        if (name) {
+          const { error } = await supabase
+            .from("author_profiles")
+            .upsert({ handle, display_name: name }, { onConflict: "handle" });
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from("author_profiles")
+            .delete()
+            .eq("handle", handle);
+          if (error) throw error;
+        }
         return new Response(
           JSON.stringify({ ok: true }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
