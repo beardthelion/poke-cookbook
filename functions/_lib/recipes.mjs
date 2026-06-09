@@ -51,8 +51,14 @@ async function pgFetch(path) {
 }
 
 export async function getRecipeById(id) {
-  const rows = await pgFetch(
-    `recipes?id=eq.${encodeURIComponent(id)}&is_hidden=eq.false&select=${RECIPE_COLS}&limit=1`);
+  const url = `recipes?id=eq.${encodeURIComponent(id)}&is_hidden=eq.false&select=${RECIPE_COLS}&limit=1`;
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/${url}`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+  });
+  // 400 means invalid UUID syntax — treat as not found rather than throwing
+  if (resp.status === 400) return null;
+  if (!resp.ok) throw new Error(`PostgREST ${resp.status}`);
+  const rows = await resp.json();
   return rows[0] || null;
 }
 
