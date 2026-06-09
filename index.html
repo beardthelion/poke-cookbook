@@ -598,7 +598,7 @@ async function fetchRecipes() {
   }
   const { data, error } = await sb
     .from('recipes')
-    .select('id,title,description,url,category,author,author_url,vote_count,created_at,is_official')
+    .select('id,title,description,url,category,author,author_url,author_handle,vote_count,created_at,is_official')
     .eq('is_hidden', false)
     .limit(200);
   if (error) { toast('Failed to load'); console.error(error); return []; }
@@ -655,9 +655,10 @@ function isPlaceholderAuthor(a){ return !a || ['poke team','community'].includes
 function authorByline(r){
   if (!r.author) return '';
   const name = escapeHtml(r.author);
-  const inner = isPlaceholderAuthor(r.author)
+  const handle = r.author_handle || r.author;
+  const inner = isPlaceholderAuthor(handle)
     ? name
-    : `<a class="author-link" href="/u/${encodeURIComponent(r.author)}">${name}</a>`;
+    : `<a class="author-link" href="/u/${encodeURIComponent(handle)}">${name}</a>`;
   return 'by ' + inner + ' · ';
 }
 function timeAgo(ts) {
@@ -856,6 +857,7 @@ $('submitForm').addEventListener('submit', async e => {
     category: $('cat').value,
     author: isOfficial ? 'Poke Team' : (fetchedMeta.author || null),
     author_url: isOfficial ? null : (fetchedMeta.author_url || null),
+    author_handle: isOfficial ? 'Poke Team' : (fetchedMeta.author || null),
     is_official: isOfficial,
   };
   const { error } = await sb.from('recipes').insert(payload).select().single();
